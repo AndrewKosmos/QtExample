@@ -1,6 +1,6 @@
 #include "movingobject.h"
 
-MovingObject::MovingObject(float X, float Y, int Angle, int Velocity)
+MovingObject::MovingObject(qreal X, qreal Y, int Angle, int Velocity)
 {
     this->initX = X;
     this->initY = Y;

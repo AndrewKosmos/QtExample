@@ -10,43 +10,24 @@ MainWindow::MainWindow(QWidget *parent) :
     scene = new QGraphicsScene();
     ui->graphicsView->setScene(scene);
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
-    //ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //scene->setSceneRect(0,-500,500,500);
-    qreal zeroLine = scene->height();
+
+    zeroLine = scene->height();
 
     intersectX = 0;
     intersectY = 0;
-    MovingObject *ob1 = new MovingObject(0,0,45,20);
-    MovingObject *ob2 = new MovingObject(200,400,315,10);
 
-    qreal x = findIntersectX(ob1->initX,ob2->initX,ob1->initY,ob2->initY,ob1->Angle,ob2->Angle);
-    qreal y = findIntersectY(ob1->initY,x,ob1->initX,ob1->Angle);
-    if(qIsFinite(x) && !qIsNaN(x))
-    {
-        intersectX = x;
-        intersectY = y;
-    }
+    QRegExpValidator *numericValidator = new QRegExpValidator(QRegExp("\\d+"),this);
+    ui->firstXLE->setValidator(numericValidator);
+    ui->firstYLE->setValidator(numericValidator);
+    ui->firstVelocityLE->setValidator(numericValidator);
+    ui->firstAngleLE->setValidator(numericValidator);
 
-    if(intersectX && intersectY)
-    {
-        qDebug() << "X:" << intersectX;
-        qDebug() << "Y:" << intersectY;
-    }
-    else
-    {
-        qDebug() << "NO INTERSEECTION!";
-    }
+    ui->secondXLE->setValidator(numericValidator);
+    ui->secondYLE->setValidator(numericValidator);
+    ui->secondVelocityLE->setValidator(numericValidator);
+    ui->secondAngleLE->setValidator(numericValidator);
 
-    QLineF *line1 = new QLineF(ob1->initX,zeroLine - ob1->initY,ob1->initX + this->width(),ob1->initY);
-    line1->setAngle(ob1->Angle);
-    scene->addLine(*line1,QPen(Qt::red));
-    QLineF *line2 = new QLineF(ob2->initX,zeroLine - ob2->initY,ob2->initX + this->width(),ob2->initY);
-    line2->setAngle(ob2->Angle);
-    scene->addLine(*line2,QPen(Qt::blue));
-
-    scene->addEllipse(0,0,10,10,QPen(Qt::black),QBrush(Qt::black));
-    scene->addEllipse(4,8,10,10,QPen(Qt::black),QBrush(Qt::black));
+    connect(ui->startPB,SIGNAL(clicked()),this,SLOT(startCalculating()));
 }
 
 
@@ -69,4 +50,72 @@ qreal MainWindow::convertGradsToRadians(int Angle)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::drawLines(MovingObject *ob1,MovingObject *ob2)
+{
+    QLineF *line1 = new QLineF(ob1->initX,zeroLine - ob1->initY,ob1->initX + this->width(),ob1->initY);
+    line1->setAngle(ob1->Angle);
+    scene->addLine(*line1,QPen(Qt::red));
+    QLineF *line2 = new QLineF(ob2->initX,zeroLine - ob2->initY,ob2->initX + this->width(),ob2->initY);
+    line2->setAngle(ob2->Angle);
+    scene->addLine(*line2,QPen(Qt::blue));
+}
+
+void MainWindow::calculateIntersection(MovingObject *obj1, MovingObject *obj2)
+{
+    qreal x = findIntersectX(obj1->initX,obj2->initX,obj1->initY,obj2->initY,obj1->Angle,obj2->Angle);
+    qreal y = findIntersectY(obj1->initY,x,obj1->initX,obj1->Angle);
+    if(qIsFinite(x) && !qIsNaN(x))
+    {
+        intersectX = x;
+        intersectY = y;
+    }
+}
+
+void MainWindow::startCalculating()
+{
+    scene->clear();
+    intersectX = intersectY = 0;
+    if(ui->firstXLE->text()!= "" && ui->firstYLE->text() != "" && ui->firstVelocityLE->text() != "" &&
+            ui->firstAngleLE->text() != "" && ui->secondXLE->text() != "" && ui->secondYLE->text() != "" &&
+            ui->secondVelocityLE->text() != "" && ui->secondAngleLE->text() != "")
+    {
+        qreal firstX = ui->firstXLE->text().toDouble();
+        qreal firstY = ui->firstYLE->text().toDouble();
+        int firstVelocity = ui->firstVelocityLE->text().toInt();
+        int firstAngle = ui->firstAngleLE->text().toInt();
+
+        qreal secondX = ui->secondXLE->text().toDouble();
+        qreal secondY = ui->secondYLE->text().toDouble();
+        int secondVelocity = ui->secondVelocityLE->text().toInt();
+        int secondAngle = ui->secondAngleLE->text().toInt();
+
+        obj1 = new MovingObject(firstX,firstY,firstAngle,firstVelocity);
+        obj2 = new MovingObject(secondX,secondY,secondAngle,secondVelocity);
+
+        drawLines(obj1,obj2);
+        calculateIntersection(obj1,obj2);
+
+        if(intersectX && intersectY)
+        {
+            qDebug() << "X:" << intersectX;
+            qDebug() << "Y:" << intersectY;
+
+            ui->intersectionXLE->setText(QString::number(intersectX));
+            ui->intersectionYLE->setText(QString::number(intersectY));
+
+            scene->addEllipse(intersectX - 2.5,zeroLine - intersectY - 2.5,5,5,QPen(Qt::black),QBrush(Qt::black));
+        }
+        else
+        {
+            qDebug() << "NO INTERSEECTION!";
+            ui->intersectionXLE->setText("-");
+            ui->intersectionYLE->setText("-");
+        }
+    }
+    else
+    {
+        QMessageBox::information(0, "Information", "Enter all required data!");
+    }
 }

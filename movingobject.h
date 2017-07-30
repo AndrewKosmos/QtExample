@@ -8,12 +8,13 @@ class MovingObject : public QObject
     Q_OBJECT
 
 public:
-    float initX;
-    float initY;
+    qreal initX;
+    qreal initY;
 
     int Angle;
     int Velocity;
-    MovingObject(float X, float Y, int Angle, int Velocity);
+    MovingObject(qreal X, qreal Y, int Angle, int Velocity);
+    MovingObject();
 signals:
     
 public slots:
