@@ -54,12 +54,22 @@ MainWindow::~MainWindow()
 
 void MainWindow::drawLines(MovingObject *ob1,MovingObject *ob2)
 {
-    QLineF *line1 = new QLineF(ob1->initX,zeroLine - ob1->initY,ob1->initX + this->width(),ob1->initY);
+    line1 = new QLineF(ob1->initX,zeroLine - ob1->initY,ob1->initX + this->width(),ob1->initY);
     line1->setAngle(ob1->Angle);
     scene->addLine(*line1,QPen(Qt::red));
-    QLineF *line2 = new QLineF(ob2->initX,zeroLine - ob2->initY,ob2->initX + this->width(),ob2->initY);
+    line2 = new QLineF(ob2->initX,zeroLine - ob2->initY,ob2->initX + this->width(),ob2->initY);
     line2->setAngle(ob2->Angle);
     scene->addLine(*line2,QPen(Qt::blue));
+
+    MovingObjectVisual *obj1Visual = new MovingObjectVisual();
+    obj1Visual->setRotation(ob1->Angle);
+    scene->addItem(obj1Visual);
+    obj1Visual->setPos(ob1->initX,zeroLine - ob1->initY);
+
+    MovingObjectVisual *obj2Visual = new MovingObjectVisual();
+    obj2Visual->setRotation(ob2->Angle);
+    scene->addItem(obj2Visual);
+    obj2Visual->setPos(ob2->initX,zeroLine - ob2->initY);
 }
 
 void MainWindow::calculateIntersection(MovingObject *obj1, MovingObject *obj2)
@@ -97,7 +107,9 @@ void MainWindow::startCalculating()
         drawLines(obj1,obj2);
         calculateIntersection(obj1,obj2);
 
-        if(intersectX && intersectY)
+        QPointF* intersectionPoint = new QPointF(intersectX,intersectY);
+
+        if(intersectX && intersectY && (line1->intersect(*line2,intersectionPoint) == 1))
         {
             qDebug() << "X:" << intersectX;
             qDebug() << "Y:" << intersectY;

@@ -9,6 +9,7 @@
 #include <QGraphicsScene>
 #include <movingobject.h>
 #include <QMessageBox>
+#include <movingobjectvisual.h>
 
 namespace Ui {
 class MainWindow;
@@ -22,6 +23,8 @@ public:
     MovingObject *obj1;
     MovingObject *obj2;
     qreal zeroLine;
+    QLineF *line1;
+    QLineF *line2;
 
     explicit MainWindow(QWidget *parent = 0);
     qreal findIntersectX(float initX1,float initX2,float initY1,float initY2,int AngleA, int AngleB);
