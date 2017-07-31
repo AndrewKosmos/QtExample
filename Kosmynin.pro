@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     movingobject.cpp \
-    movingobjectvisual.cpp
+    movingobjectvisual.cpp \
+    visualinfo.cpp
 
 HEADERS  += mainwindow.h \
     movingobject.h \
-    movingobjectvisual.h
+    movingobjectvisual.h \
+    visualinfo.h
 
 FORMS    += mainwindow.ui

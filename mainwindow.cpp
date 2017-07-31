@@ -73,6 +73,14 @@ void MainWindow::drawObjects(int Angle1, int Angle2, qreal X1, qreal Y1, qreal X
     obj2Visual->setRotation(-Angle2);
     scene->addItem(obj2Visual);
     obj2Visual->setPos(X2,zeroLine - Y2);
+
+    visualInfo *info1 = new visualInfo("x","y","time","dist");
+    info1->setPos(X1 + 50,zeroLine - Y1 + 40);
+    scene->addItem(info1);
+
+    visualInfo *info2 = new visualInfo("x","y","time","dist");
+    info2->setPos(X2 + 50,zeroLine - Y2 + 40);
+    scene->addItem(info2);
 }
 
 void MainWindow::calculateIntersection(MovingObject *obj1, MovingObject *obj2)

@@ -10,6 +10,7 @@
 #include <movingobject.h>
 #include <QMessageBox>
 #include <movingobjectvisual.h>
+#include <visualinfo.h>
 
 namespace Ui {
 class MainWindow;
