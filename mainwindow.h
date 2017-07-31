@@ -41,6 +41,7 @@ private:
     QGraphicsScene *scene;
 
     void drawLines(MovingObject *obj1,MovingObject *obj2);
+    void drawObjects(int Angle1,int Angle2,qreal X1,qreal Y1,qreal X2,qreal Y2);
     void calculateIntersection(MovingObject *obj1,MovingObject *obj2);
 
 public slots:
