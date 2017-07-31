@@ -118,6 +118,7 @@ void MainWindow::startCalculating()
 {
     scene->clear();
     intersectX = intersectY = 0;
+    timePastStart = 0;
     if(ui->firstXLE->text()!= "" && ui->firstYLE->text() != "" && ui->firstVelocityLE->text() != "" &&
             ui->firstAngleLE->text() != "" && ui->secondXLE->text() != "" && ui->secondYLE->text() != "" &&
             ui->secondVelocityLE->text() != "" && ui->secondAngleLE->text() != "")
@@ -162,6 +163,10 @@ void MainWindow::startCalculating()
             qDebug() << DistanceObj2 << "Time: " << IntersectTimeObj2;
 
             drawInfoBoxes(obj1->initX,obj1->initY,obj2->initX,obj2->initY,DistanceObj1,DistanceObj2,IntersectTimeObj1,IntersectTimeObj2);
+
+            timer = new QTimer();
+            connect(timer,SIGNAL(timeout()),this,SLOT(UpdateTime()));
+            timer->start(1000);
         }
         else
         {
@@ -174,4 +179,25 @@ void MainWindow::startCalculating()
     {
         QMessageBox::information(0, "Information", "Enter all required data!");
     }
+}
+
+void MainWindow::UpdateTime()
+{
+    scene->clear();
+    drawLines(obj1,obj2);
+    QPointF coordsObj1 = calculateCurrentCoordinates(obj1,timePastStart);
+    QPointF coordsObj2 = calculateCurrentCoordinates(obj2,timePastStart);
+
+    qreal DistanceObj1 = calculateDistance(coordsObj1.x(),coordsObj1.y(),intersectX,intersectY);
+    qreal IntersectTimeObj1 = calculateIntersectionTime(obj1,DistanceObj1);
+
+
+    qreal DistanceObj2 = calculateDistance(coordsObj2.x(),coordsObj2.y(),intersectX,intersectY);
+    qreal IntersectTimeObj2 = calculateIntersectionTime(obj2,DistanceObj2);
+
+    drawObjects(obj1->Angle,obj2->Angle,coordsObj1.x(),coordsObj1.y(),coordsObj2.x(),coordsObj2.y());
+    drawInfoBoxes(coordsObj1.x(),coordsObj1.y(),coordsObj2.x(),coordsObj2.y(),DistanceObj1,DistanceObj2,IntersectTimeObj1,IntersectTimeObj2);
+
+    qDebug() << "CURR_X1:" << coordsObj1.x() << "CURR_Y1" << coordsObj1.y() << "CURR_X2:" << coordsObj2.x() << "CURR_Y2" << coordsObj2.y();
+    timePastStart++;
 }

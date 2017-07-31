@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <movingobjectvisual.h>
 #include <visualinfo.h>
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -26,6 +27,8 @@ public:
     qreal zeroLine;
     QLineF *line1;
     QLineF *line2;
+    QTimer *timer;
+    int timePastStart;
 
     explicit MainWindow(QWidget *parent = 0);
     qreal findIntersectX(float initX1,float initX2,float initY1,float initY2,int AngleA, int AngleB);
@@ -52,6 +55,7 @@ private:
 
 public slots:
     void startCalculating();
+    void UpdateTime();
 };
 
 #endif // MAINWINDOW_H
