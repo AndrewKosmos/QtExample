@@ -73,12 +73,22 @@ void MainWindow::drawObjects(int Angle1, int Angle2, qreal X1, qreal Y1, qreal X
     obj2Visual->setRotation(-Angle2);
     scene->addItem(obj2Visual);
     obj2Visual->setPos(X2,zeroLine - Y2);
+}
 
-    visualInfo *info1 = new visualInfo("x","y","time","dist");
+QPointF MainWindow::calculateCurrentCoordinates(MovingObject *obj,qreal time)
+{
+    qreal currX = obj->currX + obj->Velocity * time * qCos(convertGradsToRadians(obj->Angle));
+    qreal currY = obj->currY + obj->Velocity * time * qSin(convertGradsToRadians(obj->Angle));
+    return QPointF(currX,currY);
+}
+
+void MainWindow::drawInfoBoxes(qreal X1, qreal Y1, qreal X2, qreal Y2, qreal Distance1, qreal Distance2, qreal Time1, qreal Time2)
+{
+    visualInfo *info1 = new visualInfo(QString::number(X1),QString::number(Y1),QString::number(Time1),QString::number(Distance1));
     info1->setPos(X1 + 50,zeroLine - Y1 + 40);
     scene->addItem(info1);
 
-    visualInfo *info2 = new visualInfo("x","y","time","dist");
+    visualInfo *info2 = new visualInfo(QString::number(X2),QString::number(Y2),QString::number(Time2),QString::number(Distance2));
     info2->setPos(X2 + 50,zeroLine - Y2 + 40);
     scene->addItem(info2);
 }
@@ -92,6 +102,16 @@ void MainWindow::calculateIntersection(MovingObject *obj1, MovingObject *obj2)
         intersectX = x;
         intersectY = y;
     }
+}
+
+qreal MainWindow::calculateDistance(qreal currentX, qreal currentY, qreal intersectX, qreal intersectY)
+{
+    return qSqrt(qPow((intersectX - currentX),2) + qPow((intersectY - currentY),2));
+}
+
+qreal MainWindow::calculateIntersectionTime(MovingObject *obj, qreal distance)
+{
+    return distance / obj->Velocity;
 }
 
 void MainWindow::startCalculating()
@@ -130,6 +150,18 @@ void MainWindow::startCalculating()
             ui->intersectionYLE->setText(QString::number(intersectY));
 
             scene->addEllipse(intersectX - 2.5,zeroLine - intersectY - 2.5,5,5,QPen(Qt::black),QBrush(Qt::black));
+
+            qreal DistanceObj1 = calculateDistance(obj1->initX,obj1->initY,intersectX,intersectY);
+            qreal IntersectTimeObj1 = calculateIntersectionTime(obj1,DistanceObj1);
+
+            qDebug() << DistanceObj1 << "Time: " << IntersectTimeObj1;
+
+            qreal DistanceObj2 = calculateDistance(obj2->initX,obj2->initY,intersectX,intersectY);
+            qreal IntersectTimeObj2 = calculateIntersectionTime(obj2,DistanceObj2);
+
+            qDebug() << DistanceObj2 << "Time: " << IntersectTimeObj2;
+
+            drawInfoBoxes(obj1->initX,obj1->initY,obj2->initX,obj2->initY,DistanceObj1,DistanceObj2,IntersectTimeObj1,IntersectTimeObj2);
         }
         else
         {

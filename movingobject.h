@@ -10,6 +10,8 @@ class MovingObject : public QObject
 public:
     qreal initX;
     qreal initY;
+    qreal currX;
+    qreal currY;
 
     int Angle;
     int Velocity;
