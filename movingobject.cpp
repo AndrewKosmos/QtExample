@@ -9,3 +9,5 @@ MovingObject::MovingObject(qreal X, qreal Y, int Angle, int Velocity)
     currX = this->initX;
     currY = this->initY;
 }
+
+MovingObject::MovingObject(){}

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,11 +16,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     movingobject.cpp \
     movingobjectvisual.cpp \
-    visualinfo.cpp
+    visualinfo.cpp \
+    databaseworker.cpp
 
 HEADERS  += mainwindow.h \
     movingobject.h \
     movingobjectvisual.h \
-    visualinfo.h
+    visualinfo.h \
+    databaseworker.h
 
 FORMS    += mainwindow.ui

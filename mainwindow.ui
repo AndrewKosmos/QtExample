@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>701</width>
-    <height>502</height>
+    <height>580</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -205,6 +205,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="lastCalcPB">
+            <property name="text">
+             <string>Продолжить последний расчет</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -219,6 +226,21 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="TimeL">
+          <property name="font">
+           <font>
+            <pointsize>32</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>00:00:00</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
