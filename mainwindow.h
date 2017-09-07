@@ -62,6 +62,7 @@ private:
     void drawLines(MovingObject *obj1,MovingObject *obj2);
     void drawObjects(int Angle1,int Angle2,qreal X1,qreal Y1,qreal X2,qreal Y2);
     void drawInfoBoxes(qreal X1,qreal Y1, qreal X2,qreal Y2, qreal Distance1, qreal Distance2, qreal Time1, qreal Time2);
+    void drawInfoBoxes(qreal X1,qreal Y1, qreal X2,qreal Y2, QString Distance1, QString Distance2, QString Time1, QString Time2);
     void calculateIntersection(MovingObject *obj1,MovingObject *obj2);
     void updateUI();
     void setLineEditsState(bool state);

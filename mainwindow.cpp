@@ -34,10 +34,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->secondVelocityLE->setValidator(numericValidator);
     ui->secondAngleLE->setValidator(numericValidator);
 
-    if(!(emit haveLastData()))
+    /*if(!(emit haveLastData()))
     {
         ui->lastCalcPB->setEnabled(false);
-    }
+    }*/
 
     timer = new QTimer(this);
     connect(timer,SIGNAL(timeout()),this,SLOT(UpdateTime()));
@@ -127,6 +127,17 @@ void MainWindow::drawInfoBoxes(qreal X1, qreal Y1, qreal X2, qreal Y2, qreal Dis
     scene->addItem(info1);
 
     visualInfo *info2 = new visualInfo(QString::number(X2),QString::number(Y2),QString::number(Time2),QString::number(Distance2));
+    info2->setPos(X2 + 50,zeroLine - Y2 + 40);
+    scene->addItem(info2);
+}
+
+void MainWindow::drawInfoBoxes(qreal X1, qreal Y1, qreal X2, qreal Y2, QString Distance1, QString Distance2, QString Time1, QString Time2)
+{
+    visualInfo *info1 = new visualInfo(QString::number(X1),QString::number(Y1),Time1,Distance1);
+    info1->setPos(X1 + 50,zeroLine - Y1 + 40);
+    scene->addItem(info1);
+
+    visualInfo *info2 = new visualInfo(QString::number(X2),QString::number(Y2),Time2,Distance2);
     info2->setPos(X2 + 50,zeroLine - Y2 + 40);
     scene->addItem(info2);
 }
@@ -234,12 +245,8 @@ void MainWindow::startCalculating()
             qreal DistanceObj1 = calculateDistance(obj1->initX,obj1->initY,intersectX,intersectY);
             qreal IntersectTimeObj1 = calculateIntersectionTime(obj1,DistanceObj1);
 
-            qDebug() << DistanceObj1 << "Time: " << IntersectTimeObj1;
-
             qreal DistanceObj2 = calculateDistance(obj2->initX,obj2->initY,intersectX,intersectY);
             qreal IntersectTimeObj2 = calculateIntersectionTime(obj2,DistanceObj2);
-
-            qDebug() << DistanceObj2 << "Time: " << IntersectTimeObj2;
 
             drawInfoBoxes(obj1->initX,obj1->initY,obj2->initX,obj2->initY,DistanceObj1,DistanceObj2,IntersectTimeObj1,IntersectTimeObj2);
 
@@ -250,6 +257,8 @@ void MainWindow::startCalculating()
             qDebug() << "NO INTERSEECTION!";
             ui->intersectionXLE->setText("-");
             ui->intersectionYLE->setText("-");
+            drawInfoBoxes(obj1->initX,obj1->initY,obj2->initX,obj2->initY,"-","-","-","-");
+            timer->start(1000);
         }
     }
     else
@@ -265,7 +274,6 @@ void MainWindow::UpdateTime()
     timePastStart++;
     objects_list.clear();
     calculateIntersection(obj1,obj2);
-    scene->addEllipse(intersectX - 2.5,zeroLine - intersectY - 2.5,5,5,QPen(Qt::black),QBrush(Qt::black));
     drawLines(obj1,obj2);
 
     QPointF coordsObj1 = calculateCurrentCoordinates(obj1,1);
@@ -276,30 +284,50 @@ void MainWindow::UpdateTime()
     obj2->currX = coordsObj2.x();
     obj2->currY = coordsObj2.y();
 
-    qreal DistanceObj1 = calculateDistance(obj1->currX,obj1->currY,intersectX,intersectY);
-    qreal IntersectTimeObj1 = calculateIntersectionTime(obj1,DistanceObj1);
-
-    qreal DistanceObj2 = calculateDistance(obj2->currX,obj2->currY,intersectX,intersectY);
-    qreal IntersectTimeObj2 = calculateIntersectionTime(obj2,DistanceObj2);
-
-    drawObjects(obj1->Angle,obj2->Angle,obj1->currX,obj1->currY,obj2->currX,obj2->currY);
-    drawInfoBoxes(obj1->currX,obj1->currY,obj2->currX,obj2->currY,DistanceObj1,DistanceObj2,IntersectTimeObj1,IntersectTimeObj2);
-
-    *elapsedTime = elapsedTime->addSecs(1);
-    ui->TimeL->setText(elapsedTime->toString("hh:mm:ss"));
-
-    updateUI();
-
     objects_list.append(QString::number(obj1->currX));
     objects_list.append(QString::number(obj1->currY));
     objects_list.append(QString::number(obj2->currX));
     objects_list.append(QString::number(obj2->currY));
-    objects_list.append(QString::number(IntersectTimeObj1));
-    objects_list.append(QString::number(DistanceObj1));
-    objects_list.append(QString::number(IntersectTimeObj2));
-    objects_list.append(QString::number(DistanceObj2));
-    objects_list.append(QString::number(intersectX));
-    objects_list.append(QString::number(intersectY));
+
+    drawObjects(obj1->Angle,obj2->Angle,obj1->currX,obj1->currY,obj2->currX,obj2->currY);
+
+    QPointF* intersectionPoint = new QPointF(intersectX,intersectY);
+    if(intersectX && intersectY && (line1->intersect(*line2,intersectionPoint) == 1))
+    {
+        scene->addEllipse(intersectX - 2.5,zeroLine - intersectY - 2.5,5,5,QPen(Qt::black),QBrush(Qt::black));
+
+        qreal DistanceObj1 = calculateDistance(obj1->currX,obj1->currY,intersectX,intersectY);
+        qreal IntersectTimeObj1 = calculateIntersectionTime(obj1,DistanceObj1);
+
+        qreal DistanceObj2 = calculateDistance(obj2->currX,obj2->currY,intersectX,intersectY);
+        qreal IntersectTimeObj2 = calculateIntersectionTime(obj2,DistanceObj2);
+
+        ui->intersectionXLE->setText(QString::number(intersectX));
+        ui->intersectionYLE->setText(QString::number(intersectY));
+
+        drawInfoBoxes(obj1->currX,obj1->currY,obj2->currX,obj2->currY,DistanceObj1,DistanceObj2,IntersectTimeObj1,IntersectTimeObj2);
+        objects_list.append(QString::number(IntersectTimeObj1));
+        objects_list.append(QString::number(DistanceObj1));
+        objects_list.append(QString::number(IntersectTimeObj2));
+        objects_list.append(QString::number(DistanceObj2));
+        objects_list.append(QString::number(intersectX));
+        objects_list.append(QString::number(intersectY));
+    }
+    else{
+        drawInfoBoxes(obj1->currX,obj1->currY,obj2->currX,obj2->currY,"-","-","-","-");
+        ui->intersectionXLE->setText("-");
+        ui->intersectionYLE->setText("-");
+        objects_list.append("-");
+        objects_list.append("-");
+        objects_list.append("-");
+        objects_list.append("-");
+        objects_list.append("-");
+        objects_list.append("-");
+    }
+    *elapsedTime = elapsedTime->addSecs(1);
+    ui->TimeL->setText(elapsedTime->toString("hh:mm:ss"));
+
+    updateUI();
 
     emit UpdateLastVal();
     emit InsertObjectsSignal(objects_list,values_list);
@@ -485,66 +513,75 @@ void MainWindow::setLineEditsState(bool state)
 
 void MainWindow::on_lastCalcPB_clicked()
 {
-    QStringList list = emit getLastData();
+    if(emit haveLastData())
+    {
+        QStringList list = emit getLastData();
 
-    QString firstX = list[0];
-    QString firstY = list[1];
-    QString secondX = list[2];
-    QString secondY = list[3];
-    QString firstT = list[4];
-    QString firstD = list[5];
-    QString secondT = list[6];
-    QString secondD = list[7];
-    QString SintersectX = list[8];
-    QString SintersectY = list[9];
-    QString firstInitX = list[10];
-    QString firstInitY = list[11];
-    QString secondInitX = list[12];
-    QString secondInitY = list[13];
-    QString firstAngle = list[14];
-    QString firstV = list[15];
-    QString secondAngle = list[16];
-    QString secondV = list[17];
+        QString firstX = list[0];
+        QString firstY = list[1];
+        QString secondX = list[2];
+        QString secondY = list[3];
+        QString firstT = list[4];
+        QString firstD = list[5];
+        QString secondT = list[6];
+        QString secondD = list[7];
+        QString SintersectX = list[8];
+        QString SintersectY = list[9];
+        QString firstInitX = list[10];
+        QString firstInitY = list[11];
+        QString secondInitX = list[12];
+        QString secondInitY = list[13];
+        QString firstAngle = list[14];
+        QString firstV = list[15];
+        QString secondAngle = list[16];
+        QString secondV = list[17];
 
-    scene->clear();
-    intersectX = intersectY = 0;
-    dX1 = dX2 = dY1 = dY2 = 0;
+        scene->clear();
+        intersectX = intersectY = 0;
+        dX1 = dX2 = dY1 = dY2 = 0;
 
-    timePastStart = 0;
-    elapsedTime = new QTime(0,0);
-    isPaused = false;
-    ui->pausePB->setText("Пауза");
-    setLineEditsState(false);
+        timePastStart = 0;
+        elapsedTime = new QTime(0,0);
+        isPaused = false;
+        ui->pausePB->setText("Пауза");
+        setLineEditsState(false);
 
-    obj1 = new MovingObject();
-    obj2 = new MovingObject();
+        obj1 = new MovingObject();
+        obj2 = new MovingObject();
 
-    obj1->initX = firstInitX.toFloat();
-    obj1->initY = firstInitY.toFloat();
-    obj1->currX = firstX.toDouble();
-    obj1->currY = firstY.toDouble();
-    obj1->Angle = firstAngle.toInt();
-    obj1->Velocity = firstV.toInt();
+        obj1->initX = firstInitX.toFloat();
+        obj1->initY = firstInitY.toFloat();
+        obj1->currX = firstX.toDouble();
+        obj1->currY = firstY.toDouble();
+        obj1->Angle = firstAngle.toInt();
+        obj1->Velocity = firstV.toInt();
 
-    obj2->initX = secondInitX.toFloat();
-    obj2->initY = secondInitY.toFloat();
-    obj2->currX = secondX.toDouble();
-    obj2->currY = secondY.toDouble();
-    obj2->Angle = secondAngle.toInt();
-    obj2->Velocity = secondV.toInt();
+        obj2->initX = secondInitX.toFloat();
+        obj2->initY = secondInitY.toFloat();
+        obj2->currX = secondX.toDouble();
+        obj2->currY = secondY.toDouble();
+        obj2->Angle = secondAngle.toInt();
+        obj2->Velocity = secondV.toInt();
 
-    intersectX = SintersectX.toDouble();
-    intersectY = SintersectY.toDouble();
+        if(SintersectX != "-" && SintersectY != "-")
+        {
+            intersectX = SintersectX.toDouble();
+            intersectY = SintersectY.toDouble();
+        }
 
-    values_list.clear();
-    values_list.append(firstInitX);
-    values_list.append(firstInitY);
-    values_list.append(secondInitX);
-    values_list.append(secondInitY);
-    values_list.append(firstAngle);
-    values_list.append(firstV);
-    values_list.append(secondAngle);
-    values_list.append(secondV);
+        values_list.clear();
+        values_list.append(firstInitX);
+        values_list.append(firstInitY);
+        values_list.append(secondInitX);
+        values_list.append(secondInitY);
+        values_list.append(firstAngle);
+        values_list.append(firstV);
+        values_list.append(secondAngle);
+        values_list.append(secondV);
 
-    timer->start(1000);
+        timer->start(1000);
+    }
+    else{
+        qDebug() << "NO LAST DATA";
+    }
 }
