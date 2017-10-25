@@ -584,4 +584,9 @@ void MainWindow::on_lastCalcPB_clicked()
     else{
         qDebug() << "NO LAST DATA";
     }
+
+
+    qDebug() << "NO LAST DATA";
+    qDebug() << "NO LAST DATA";
+    qDebug() << "NO LAST DATA";
 }
